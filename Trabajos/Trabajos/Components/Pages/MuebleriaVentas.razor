@@ -1,0 +1,76 @@
+﻿@page "/muebleriaVentas"
+@rendermode InteractiveServer
+@inject NavigationManager navegador
+@inject RepositorioVentas repositorio
+
+<h2>Mubleria el meñique feliz : Ventas</h2>
+
+<button type="button" class="btn btn-primary" @onclick="Agregar" @onclick:preventDefault>Agregar</button>
+
+@if (ventas == null)
+{
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+    </div>
+}
+else if (ventas.Count == 0)
+{
+    <h3>No hay ventas</h3>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Precio</th>
+                <th>Cantidad</th>
+                <th>Fecha</th>
+                <th>Encargado de venta</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (Ventas venta in ventas)
+            {
+                <tr>
+                    <td>@venta.ProductoV</td>
+                    <td>@venta.PrecioV</td>
+                    <td>@venta.CantidadV</td>
+                    <td>@venta.FechaV</td>
+                    <td>@venta.EmpleadoV</td>
+                    <td>
+                        <button class="btn btn-danger" @onclick="() => Eliminar(venta)">Eliminar</button>
+                        <button class="btn btn-secondary" @onclick="() => Modificar(venta.IdVenta)">Modificar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+@code {
+    private List<Ventas>? ventas;
+
+    protected override async Task OnInitializedAsync()
+    {
+        ventas = await repositorio.GetAll();
+    }
+
+    private async void Eliminar(Ventas venta)
+    {
+        await repositorio.Delete(venta.IdVenta);
+        ventas!.Remove(venta);
+        StateHasChanged();
+    }
+
+    private void Modificar(int id)
+    {
+        navegador.NavigateTo($"/muebleriaVentas/editar/{id}");
+    }
+
+    private void Agregar()
+    {
+        navegador.NavigateTo("/muebleriaVentas/nuevo");
+    }
+}

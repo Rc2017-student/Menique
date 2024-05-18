@@ -1,0 +1,74 @@
+﻿@page "/muebleria"
+@rendermode InteractiveServer
+@inject NavigationManager navegador
+@inject RepositorioCompras repositorio
+
+<h2>Mubleria el meñique feliz</h2>
+
+<button type="button" class="btn btn-primary" @onclick="Agregar" @onclick:preventDefault>Agregar</button>
+
+@if (compras == null)
+{
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+    </div>
+}
+else if (compras.Count == 0)
+{
+    <h3>No hay muebles</h3>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Precio</th>
+                <th>Cantidad</th>
+                <th>Fecha</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (Compras compra in compras)
+            {
+                <tr>
+                    <td>@compra.NombreC</td>
+                    <td>@compra.PrecioC</td>
+                    <td>@compra.CantidadC</td>
+                    <td>@compra.FechaC</td>
+                    <td>
+                        <button class="btn btn-danger" @onclick="() => Eliminar(compra)">Eliminar</button>
+                        <button class="btn btn-secondary" @onclick="() => Modificar(compra.IdProducto)">Modificar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+@code {
+    private List<Compras>? compras;
+
+    protected override async Task OnInitializedAsync()
+    {
+        compras = await repositorio.GetAll();
+    }
+
+    private async void Eliminar (Compras compra)
+    {
+        await repositorio.Delete(compra.IdProducto);
+        compras!.Remove(compra);
+        StateHasChanged();
+    }
+
+    private void Modificar(int id)
+    {
+        navegador.NavigateTo($"/muebleria/editar/{id}");
+    }
+
+    private void Agregar()
+    {
+        navegador.NavigateTo("/muebleria/nuevo");
+    }
+}

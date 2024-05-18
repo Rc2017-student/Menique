@@ -1,0 +1,244 @@
+﻿@*
+@page "/examen"
+@using System.ComponentModel.DataAnnotations
+@rendermode InteractiveServer
+
+<h3>Inventario</h3>
+
+<div class="form-floating mb-3">
+
+    <EditForm Model="@newProducto" OnValidSubmit="AddProducto">
+        <DataAnnotationsValidator />
+
+        <div class="form-group">
+            <label>Numero de inventario:</label>
+            <InputNumber @bind-Value="newProducto.Numero" class="form-control" />
+            <ValidationMessage For="@(() => newProducto.Numero)" />
+        </div>
+
+        <div class="form-group">
+            <label>Nombre:</label>
+            <InputText @bind-Value="newProducto.Nombre" class="form-control" />
+            <ValidationMessage For="@(() => newProducto.Nombre)" />
+        </div>
+
+        <div class="form-group">
+            <label>Departamento:</label>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="departamento" id="frutasRadio" value="Frutas" checked="@seleccionado("Frutas")" @onchange="cambio" />
+                <label class="form-check-label" for="frutasRadio">Frutas</label>
+            </div>
+
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="departamento" id="verdurasRadio" value="Verduras" checked="@seleccionado("Verduras")" @onchange="cambio" />
+                <label class="form-check-label" for="verdurasRadio">Verduras</label>
+            </div>
+
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="departamento" id="lacteosRadio" value="Lacteos" checked="@seleccionado("Lacteos")" @onchange="cambio" />
+                <label class="form-check-label" for="lacteosRadio">Lacteos</label>
+            </div>
+            <ValidationMessage For="@(() => newProducto.Departmento)" />
+        </div>
+
+        @if (SelecProducto == null)
+        {
+            <button type="submit" class="btn btn-primary mt-3">Guardar</button>
+        }
+        else
+        {
+            <button type="button" class="btn btn-primary mt-3" @onclick="modificar">
+                Actualizar
+            </button>
+            <button type="button" class="btn btn-secondary mt-3" @onclick="cancelar">
+                Cancelar
+            </button>
+        }
+        <div class="form-group">
+            @if (!verStock)
+            {
+                <button type="button" class="btn btn-secondary mt-3" @onclick="stock">
+                    Existencias
+                </button>
+            }
+
+            @if (verStock)
+            {
+                <button type="button" class="btn btn-secondary mt-3" @onclick="stock">
+                    Listado
+                </button>
+            }
+        </div>
+    </EditForm>
+</div>
+@if (verStock)
+{
+    <div class="form-floating mb-3">
+        <h4>Existencias</h4>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Frutas</th>
+                    <th>Verduras</th>
+                    <th>Lacteos</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>@Count("Frutas")</td>
+                    <td>@Count("Verduras")</td>
+                    <td>@Count("Lacteos")</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    @if (Validacion.Productos.Any())
+    {
+        <div class="form-floating mb-3">
+            <h4>Lista de productos</h4>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Numero de inventario</th>
+                        <th>Nombre</th>
+                        <th>Departamento</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var producto in Validacion.Productos)
+                    {
+                        <tr>
+                            <td>@producto.Numero</td>
+                            <td>@producto.Nombre</td>
+                            <td>@producto.Departmento</td>
+                            <td>
+                                <button class="btn btn-danger" @onclick="() => RemoveProducto(producto)">
+                                    Eliminar
+                                </button>
+                                <button class="btn btn-secondary" @onclick="() => EditProducto(producto)">
+                                    Editar
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+}
+
+@if (!string.IsNullOrEmpty(error))
+{
+    <div class="alert alert-danger" role="alert">
+        @error
+    </div>
+}
+
+@code {
+    private Producto newProducto = new Producto();
+    private Validacion Validacion = new Validacion();
+    private string error = "";
+    private Producto SelecProducto;
+
+    private void AddProducto()
+    {
+        if (Validar(newProducto))
+        {
+            if (!Validacion.IsNumeroDup(newProducto.Numero))
+            {
+                Validacion.AddProducto(newProducto);
+                newProducto = new Producto();
+                error = "";
+            }
+            else
+            {
+                error = "El numero del producto ya esta registrado";
+            }
+        }
+        else
+        {
+            error = "Llena todos los campos";
+        }
+    }
+
+    private void RemoveProducto(Producto producto)
+    {
+        Validacion.RemoveProducto(producto);
+    }
+
+    private bool Validar(Producto producto)
+    {
+        var contexto = new ValidationContext(producto, serviceProvider: null, items: null);
+        var resultado = new List<ValidationResult>();
+        var valido = Validator.TryValidateObject(producto, contexto, resultado, validateAllProperties: true);
+        return valido;
+
+    }
+
+    private void EditProducto(Producto producto)
+    {
+        SelecProducto = producto;
+        newProducto = new Producto
+            {
+                Numero = producto.Numero,
+                Nombre = producto.Nombre,
+                Departmento = producto.Departmento
+            };
+    }
+
+    private void modificar()
+    {
+        if (Validar(newProducto))
+        {
+            if (!Validacion.IsNumeroDup(newProducto.Numero) || newProducto.Numero == SelecProducto.Numero)
+            {
+                SelecProducto.Numero = newProducto.Numero;
+                SelecProducto.Nombre = newProducto.Nombre;
+                SelecProducto.Departmento = newProducto.Departmento;
+                newProducto = new Producto();
+                SelecProducto = null;
+                error = "";
+            }
+            else
+            {
+                error = "Ya esta registrado";
+            }
+        }
+        else
+        {
+            error = "Llena todo";
+        }
+    }
+
+    private void cancelar()
+    {
+        newProducto = new Producto();
+        SelecProducto = null;
+        error = "";
+    }
+
+    private string SelecDepartamento;
+    private bool seleccionado(string department) => newProducto.Departmento == department;
+
+    private void cambio(ChangeEventArgs d)
+    {
+        newProducto.Departmento = d.Value.ToString();
+    }
+
+    private bool verStock = false;
+
+    private void stock()
+    {
+        verStock = !verStock;
+    }
+
+    private int Count(string departmento)
+    {
+        return Validacion.Productos.Count(p => p.Departmento == departmento);
+    }
+}
+*@

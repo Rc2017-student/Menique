@@ -1,0 +1,92 @@
+﻿@page "/muebleriaVentas/nuevo"
+@page "/muebleriaVentas/editar/{id:int}"
+@rendermode InteractiveServer
+@inject NavigationManager navegador
+@inject RepositorioVentas repositorio
+
+<h2>Carga de datos</h2>
+
+<EditForm Model="ventas" FormName="Fventas" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+
+    <div class="row mb-3">
+        <lable for="ProductoV" class="col-sm-2 col-form-label">Nombre del producto</lable>
+        <div class="col-sm-10">
+            <InputText id="ProductoV" class="form-control" @bind-Value="ventas.ProductoV" />
+            <ValidationMessage For="() => ventas.ProductoV" />
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <lable for="PrecioV" class="col-sm-2 col-form-label">Precio</lable>
+        <div class="col-sm-10">
+            <InputNumber id="PrecioV" class="form-control" @bind-Value="ventas.PrecioV" />
+            <ValidationMessage For="() => ventas.PrecioV" />
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <lable for="CantidadV" class="col-sm-2 col-form-label">Cantidad</lable>
+        <div class="col-sm-10">
+            <InputNumber id="CantidadV" class="form-control" @bind-Value="ventas.CantidadV" />
+            <ValidationMessage For="() => ventas.CantidadV" />
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <lable for="FechaC" class="col-sm-2 col-form-label">Fecha de venta</lable>
+        <div class="col-sm-10">
+            <InputDate id="FechaV" class="form-control" @bind-Value="ventas.FechaV" />
+            <ValidationMessage For="() => ventas.FechaV" />
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <lable for="EmpleadoV" class="col-sm-2 col-form-label">Encargado de venta</lable>
+        <div class="col-sm-10">
+            <InputText id="EmpleadoV" class="form-control" @bind-Value="ventas.EmpleadoV" />
+            <ValidationMessage For="() => ventas.EmpleadoV" />
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <button type="button" class="btn btn-secondary" @onclick="Cancelar" @onclick:preventDefault>Cancelar</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    private string mensaje = "";
+    private Ventas? ventas = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id != 0)
+        {
+            ventas = await repositorio.Get(Id);
+            mensaje = "Editar";
+        }
+        else
+        {
+            mensaje = "Nueva";
+        }
+    }
+
+    private async void Guardar()
+    {
+        if (Id != 0)
+        {
+            await repositorio.Update(Id, ventas);
+        }
+        else
+        {
+            await repositorio.Add(ventas!);
+        }
+        Cancelar();
+    }
+
+    private void Cancelar()
+    {
+        navegador.NavigateTo("/muebleriaVentas");
+    }
+
+}

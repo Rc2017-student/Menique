@@ -1,0 +1,105 @@
+﻿@page "/canciones"
+@rendermode InteractiveServer
+<h2>Lista de canciones</h2>
+
+<div class="form-floating mb-3">
+    <input type="text" class="form-control" id="floatingInput" @bind="_newCancion">
+    <label for="floatingInput">Cancion</label>
+</div>
+
+<div class="form-floating">
+    <input type="text" class="form-control mb-3" id="floatingPassword" @bind="_cancionModificada">
+    <label for="floatingInput">Cancion a modificar</label>
+</div>
+
+<button type="button" class="btn btn-primary mb-3" @onclick="AgregarCancion">Agregar</button>
+<button type="button" class="btn btn-info mb-3" @onclick="OCancionA">Organizar ↑</button>
+<button type="button" class="btn btn-info mb-3" @onclick="OCancionD">Organizar ↓</button>
+<button type="button" class="btn btn-warning mb-3" @onclick="BuscarCancion">Buscar</button>
+<button type="button" class="btn btn-secondary mb-3" @onclick="Modi">Modificar</button>
+
+@if (cancionesFiltradas.Count > 0)
+{
+    <ul class="list-group mt-3">
+        @foreach (var busqueda in cancionesFiltradas)
+        {
+            <li class="list-group-item">
+                @busqueda
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p>No hay busquedas ♪</p>
+}
+
+@if (canciones.Count > 0)
+{
+    <ul class="list-group mt-3">
+        @foreach (var cancion in canciones)
+        {
+            <li class="list-group-item">
+                @cancion
+                <button type="button" class="btn btn-danger btn-sm float-end" @onclick="() => EliminarCancion(cancion)">Eliminar</button>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p>No hay canciones ♪</p>
+}
+@code {
+    private string? _cancionModificada;
+    private string? _newCancion;
+    List<string> canciones = new List<string>();
+    List<string> cancionesFiltradas = new List<string>();
+
+    private void AgregarCancion()
+    {
+        if (!string.IsNullOrWhiteSpace(_newCancion))
+        {
+            canciones.Add(_newCancion);
+            _newCancion = string.Empty;
+        }
+    }
+
+    private void EliminarCancion(string cancion)
+    {
+        canciones.Remove(cancion);
+    }
+
+    private void OCancionA()
+    {
+        canciones = canciones.OrderBy(p => p).ToList();
+    }
+
+    private void OCancionD()
+    {
+        canciones = canciones.OrderByDescending(p => p).ToList();
+    }
+
+    private void BuscarCancion()
+    {
+        cancionesFiltradas.Clear();
+        if (!string.IsNullOrWhiteSpace(_newCancion))
+        {
+            cancionesFiltradas = canciones.Where(c => c.Contains(_newCancion, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+    }
+
+    private void Modi()
+    {
+        if (!string.IsNullOrWhiteSpace(_newCancion) && !string.IsNullOrWhiteSpace(_cancionModificada))
+        {
+            if (canciones.Contains(_cancionModificada))
+            {
+                int index = canciones.IndexOf(_cancionModificada);
+                canciones[index] = _newCancion;
+                _newCancion = string.Empty;
+                _cancionModificada = string.Empty;
+            }
+        }
+    }
+}

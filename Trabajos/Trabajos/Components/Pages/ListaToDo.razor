@@ -1,0 +1,46 @@
+﻿@page "/listatodo"
+@rendermode InteractiveServer
+<h2>Lista de tareas por hacer</h2>
+
+<div class="form-floating mb-3">
+    <input type="text" class="form-control" id="floatingInput" @bind="_newToDo">
+    <label for="floatingInput">Tarea</label>
+</div>
+
+<button type="button" class="btn btn-primary mb-3" @onclick="AgregarTarea">Agregar</button>
+
+@if (tareas.Count > 0)
+{
+    <ul class="list-group mt-3">
+        @foreach (var _newToDo in tareas)
+        {
+            <li class="list-group-item">
+                @_newToDo
+                <button type="button" class="btn btn-danger btn-sm float-end" @onclick="() => EliminarTarea(_newToDo)">Eliminar</button>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p>No hay tareas por hacer ☺</p>
+}
+
+@code {
+    private string? _newToDo;
+    List<string> tareas = new List<string>();
+
+    private void AgregarTarea()
+    {
+        if (!string.IsNullOrWhiteSpace(_newToDo))
+        {
+            tareas.Add(_newToDo);
+            _newToDo = string.Empty;
+        }
+    }
+
+    private void EliminarTarea(string _newToDo)
+    {
+        tareas.Remove(_newToDo);
+    }
+}

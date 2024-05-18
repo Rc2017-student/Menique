@@ -1,0 +1,76 @@
+﻿@page "/muebleriaEmpleados"
+@rendermode InteractiveServer
+@inject NavigationManager navegador
+@inject RepositorioEmpleados repositorio
+
+<h2>Mubleria el meñique feliz : Empleados</h2>
+
+<button type="button" class="btn btn-primary" @onclick="Agregar" @onclick:preventDefault>Agregar</button>
+
+@if (empleados == null)
+{
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+    </div>
+}
+else if (empleados.Count == 0)
+{
+    <h3>No tienes empleados</h3>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Puesto</th>
+                <th>Fecha de contratacion</th>
+                <th>Salario</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (Empleados empleado in empleados)
+            {
+                <tr>
+                    <td>@empleado.NombreE</td>
+                    <td>@empleado.ApellidoE</td>
+                    <td>@empleado.PuestoE</td>
+                    <td>@empleado.FechaContratacion</td>
+                    <td>@empleado.Salario</td>
+                    <td>
+                        <button class="btn btn-danger" @onclick="() => Eliminar(empleado)">Eliminar</button>
+                        <button class="btn btn-secondary" @onclick="() => Modificar(empleado.IdEmpleado)">Modificar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+@code {
+    private List<Empleados>? empleados;
+
+    protected override async Task OnInitializedAsync()
+    {
+        empleados = await repositorio.GetAll();
+    }
+
+    private async void Eliminar(Empleados empleado)
+    {
+        await repositorio.Delete(empleado.IdEmpleado);
+        empleados!.Remove(empleado);
+        StateHasChanged();
+    }
+
+    private void Modificar(int id)
+    {
+        navegador.NavigateTo($"/muebleriaEmpleados/editar/{id}");
+    }
+
+    private void Agregar()
+    {
+        navegador.NavigateTo("/muebleriaEmpleados/nuevo");
+    }
+}

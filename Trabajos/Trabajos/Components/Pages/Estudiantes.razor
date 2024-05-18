@@ -1,0 +1,73 @@
+﻿@*
+@page "/estudiantes"
+@rendermode InteractiveServer
+
+<EditForm Model="alumno" FormName="actividad" OnValidSubmit="agregar">
+    <DataAnnotationsValidator />
+    <div class="mb-3 row">
+        <label class="col-sm-2 col-form-label">Nombre</label>
+        <div class="col-sm-10">
+            <InputText @bind-Value=alumno.name type="text" class="form-control" />
+            <ValidationMessage For="@(()=>alumno.name)" />
+        </div>
+    </div>
+    <div class="mb-3 row">
+        <label class="col-sm-2 col-form-label">Correo</label>
+        <div class="col-sm-10">
+            <InputText @bind-Value=alumno.mail class="form-control" />
+            <ValidationMessage For="@(()=>alumno.mail)" />
+        </div>
+    </div>
+    <div class="mb-3 row">
+        <label class="col-sm-2 col-form-label">Calificacion</label>
+        <div class="col-sm-10">
+            <InputNumber @bind-Value=alumno.cali class="form-control" />
+            <ValidationMessage For="@(()=>alumno.cali)" />
+        </div>
+    </div>
+    <button class="btn btn-primary" type="submit">Agregar</button>
+</EditForm>
+@if (Alumnos != null)
+{
+    <table>
+        <thead>
+            <tr>
+                <td>Nombre</td>
+                <td>Correo</td>
+                <td>Calificacion</td>
+                <td>Borrar</td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (Alumno elemento in Alumnos)
+            {
+                <tr>
+                    <td>@elemento.name</td>
+                    <td>@elemento.mail</td>
+                    <td>@elemento.cali</td>
+                    <td>
+                        <button type="button" class="btn btn-outline-danger" @onclick="(()=>eliminar(elemento))">Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+@code {
+    private List<Alumno> Alumnos = new List<Alumno>();
+    private Alumno alumno = new Alumno();
+    private void agregar()
+    {
+        if (alumno.name != null && alumno.name.Length > 0)
+        {
+            Alumnos.Add(alumno);
+            alumno = new Alumno();
+        }
+    }
+
+    private void eliminar(Alumno cual)
+    {
+        Alumnos.Remove(cual);
+    }
+}
+*@
