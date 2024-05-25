@@ -12,7 +12,7 @@ using Trabajos.Data;
 namespace Trabajos.Migrations
 {
     [DbContext(typeof(MuebleriaDBContext))]
-    [Migration("20240518170737_1")]
+    [Migration("20240525184645_1")]
     partial class _1
     {
         /// <inheritdoc />
@@ -103,25 +103,42 @@ namespace Trabajos.Migrations
                         .IsRequired()
                         .HasColumnType("int");
 
-                    b.Property<string>("EmpleadoV")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("ComprasId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("EmpleadosId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("FechaV")
                         .IsRequired()
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("PrecioV")
-                        .IsRequired()
-                        .HasColumnType("int");
-
-                    b.Property<string>("ProductoV")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("IdVenta");
 
+                    b.HasIndex("ComprasId");
+
+                    b.HasIndex("EmpleadosId");
+
                     b.ToTable("Ventas");
+                });
+
+            modelBuilder.Entity("Trabajos.Data.Ventas", b =>
+                {
+                    b.HasOne("Trabajos.Data.Compras", "Compras")
+                        .WithMany()
+                        .HasForeignKey("ComprasId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Trabajos.Data.Empleados", "Empleados")
+                        .WithMany()
+                        .HasForeignKey("EmpleadosId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Compras");
+
+                    b.Navigation("Empleados");
                 });
 #pragma warning restore 612, 618
         }

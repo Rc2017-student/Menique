@@ -43,11 +43,8 @@ namespace Trabajos.Repositorio
             var ventaActual = await context.Ventas.FindAsync(id);
             if (ventaActual != null)
             {
-                ventaActual.ProductoV = ventas.ProductoV;
-                ventaActual.PrecioV = ventas.PrecioV;
                 ventaActual.CantidadV = ventas.CantidadV;
                 ventaActual.FechaV = ventas.FechaV;
-                ventaActual.EmpleadoV = ventas.EmpleadoV;
 
                 await context.SaveChangesAsync();
             }

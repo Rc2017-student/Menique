@@ -22,22 +22,24 @@ else
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Nombre</th>
-                <th>Precio</th>
+                <th>Mueble</th>
                 <th>Cantidad</th>
+                <th>Precio unitario</th>
+                <th>Total</th>
+                <th>Empleado</th>
                 <th>Fecha</th>
-                <th>Encargado de venta</th>
             </tr>
         </thead>
         <tbody>
             @foreach (Ventas venta in ventas)
             {
                 <tr>
-                    <td>@venta.ProductoV</td>
-                    <td>@venta.PrecioV</td>
+                    <td>@venta.Compras?.NombreC</td>
                     <td>@venta.CantidadV</td>
+                    <td>@venta.Compras?.PrecioC</td>
+                    <td>@(venta.Compras?.PrecioC * venta.CantidadV)</td>
+                    <td>@venta.Empleados?.NombreE</td>
                     <td>@venta.FechaV</td>
-                    <td>@venta.EmpleadoV</td>
                     <td>
                         <button class="btn btn-danger" @onclick="() => Eliminar(venta)">Eliminar</button>
                         <button class="btn btn-secondary" @onclick="() => Modificar(venta.IdVenta)">Modificar</button>

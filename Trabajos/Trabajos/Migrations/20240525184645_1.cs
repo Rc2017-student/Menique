@@ -50,29 +50,50 @@ namespace Trabajos.Migrations
                 {
                     IdVenta = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ProductoV = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PrecioV = table.Column<int>(type: "int", nullable: false),
+                    ComprasId = table.Column<int>(type: "int", nullable: false),
                     CantidadV = table.Column<int>(type: "int", nullable: false),
                     FechaV = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EmpleadoV = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    EmpleadosId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Ventas", x => x.IdVenta);
+                    table.ForeignKey(
+                        name: "FK_Ventas_Compras_ComprasId",
+                        column: x => x.ComprasId,
+                        principalTable: "Compras",
+                        principalColumn: "IdProducto",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Ventas_Empleados_EmpleadosId",
+                        column: x => x.EmpleadosId,
+                        principalTable: "Empleados",
+                        principalColumn: "IdEmpleado",
+                        onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Ventas_ComprasId",
+                table: "Ventas",
+                column: "ComprasId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Ventas_EmpleadosId",
+                table: "Ventas",
+                column: "EmpleadosId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "Ventas");
+
+            migrationBuilder.DropTable(
                 name: "Compras");
 
             migrationBuilder.DropTable(
                 name: "Empleados");
-
-            migrationBuilder.DropTable(
-                name: "Ventas");
         }
     }
 }

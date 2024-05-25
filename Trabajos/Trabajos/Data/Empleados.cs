@@ -25,5 +25,10 @@ namespace Trabajos.Data
         [Required(ErrorMessage = "Este campo es requerido")]
         [Range(1, int.MaxValue, ErrorMessage = "Debe de ser un numero entero")]
         public int? Salario { get; set; }
+
+        public static List<string> ObtenerPuestos()
+        {
+            return new List<string> { "Sin puesto", "Gerente", "Vendedor", "Diseñador", "Encargado de invemtario", "Cajero", "Mantenimiento", "Personal" };
+        }
     }
 }
